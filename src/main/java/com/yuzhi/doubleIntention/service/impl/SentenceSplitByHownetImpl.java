@@ -153,9 +153,9 @@ public class SentenceSplitByHownetImpl implements SentenceSplitByHownet,CommandL
 			if(lastKeenageDataInScndSentence.getKey_1().contains("结构_句内双意图")) {
 				scndIsApposedWordsOrNot=true;
 			}
-			if (lastKeenageDataInScndSentence.getKey_1().contains("标记_双意图拒识")) {//“标记_双意图拒识”优先级高，有一票否决权，故放在下方
-				scndIsApposedWordsOrNot=false;
-			}
+//			if (lastKeenageDataInScndSentence.getKey_1().contains("标记_双意图拒识")) {//“标记_双意图拒识”优先级高，有一票否决权，故放在下方
+//				scndIsApposedWordsOrNot=false;
+//			}
 		}
 		//分别获取第一句和第二句的类型
 		String frstSentenceType = lastKeenageDataInFrstSentence.getKey_IR();
