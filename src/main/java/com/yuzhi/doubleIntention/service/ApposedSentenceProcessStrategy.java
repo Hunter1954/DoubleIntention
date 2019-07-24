@@ -11,6 +11,7 @@ package com.yuzhi.doubleIntention.service;
 
 import java.util.List;
 
+import com.yuzhi.doubleIntention.dto.ResponseJsonDto;
 import com.yuzhi.doubleIntention.dto.parser.KeenageDataDTO;
 
 /**  
@@ -20,6 +21,6 @@ import com.yuzhi.doubleIntention.dto.parser.KeenageDataDTO;
 * @date 2019年5月30日  
 */
 public interface ApposedSentenceProcessStrategy {
-	public List<String> processStartegySwitch(String sentenceStrategy,String frstSentenceType, String secndSentenceType,
+	public ResponseJsonDto processStartegySwitch(String sentenceStrategy,String frstSentenceType, String secndSentenceType,
 			List<List<KeenageDataDTO>> splitSentencePreprocess);
 }

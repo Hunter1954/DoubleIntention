@@ -11,6 +11,8 @@ package com.yuzhi.doubleIntention.service;
 
 import java.util.List;
 
+import com.yuzhi.doubleIntention.dto.ResponseJsonDto;
+
 /**  
 * <p>Title: SentetnceSplitByHownet</p>  
 * <p>Description: </p>  
@@ -18,5 +20,5 @@ import java.util.List;
 * @date 2019年4月23日  
 */
 public interface SentenceSplitByHownet {
-	public List<String> doubleIntentionProcess(String requestQuestion);
+	public ResponseJsonDto doubleIntentionProcess(String questionID, String requestQuestion);
 }

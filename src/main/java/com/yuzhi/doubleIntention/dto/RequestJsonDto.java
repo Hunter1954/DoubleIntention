@@ -16,19 +16,20 @@ package com.yuzhi.doubleIntention.dto;
 * @date 2019年4月23日  
 */
 public class RequestJsonDto {
-	private String requestID;
+	private String questionID;
 	private String requestQuestion;
+	
 	/**
-	 * @return the requestID
+	 * @return the questionID
 	 */
-	public String getRequestID() {
-		return requestID;
+	public String getQuestionID() {
+		return questionID;
 	}
 	/**
-	 * @param requestID the requestID to set
+	 * @param questionID the questionID to set
 	 */
-	public void setRequestID(String requestID) {
-		this.requestID = requestID;
+	public void setQuestionID(String questionID) {
+		this.questionID = questionID;
 	}
 	/**
 	 * @return the requestQuestion

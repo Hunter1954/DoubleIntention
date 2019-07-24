@@ -37,13 +37,13 @@ public class QestionRequestController {
 	@Autowired
 	private SentenceSplitByHownet sentenceSplitByHownet;
 	
-	@PostMapping
+	@PostMapping("doubleIntentionRequest")
 	public Object qestionIntention(@RequestBody(required=true)RequestJsonDto requestJsonDto) {
-		if(requestJsonDto==null||"".equals(requestJsonDto.getRequestID())||"".equals(requestJsonDto.getRequestQuestion())) {
-			return new ResponseJsonDto(500,null,"params shouldn't contains null or empty string");
+		if(requestJsonDto==null||"".equals(requestJsonDto.getQuestionID())||"".equals(requestJsonDto.getRequestQuestion())) {
+			return new ResponseJsonDto(505,null,"params shouldn't contains null or empty string");
 		}
 		//调用service层，解析句子并拆分
-		List<String> sentenceSplited= sentenceSplitByHownet.doubleIntentionProcess(requestJsonDto.getRequestQuestion());
-		return new ResponseJsonDto(200,sentenceSplited,"success");
+		ResponseJsonDto responseJsonDto= sentenceSplitByHownet.doubleIntentionProcess(requestJsonDto.getQuestionID(),requestJsonDto.getRequestQuestion());
+		return responseJsonDto;
 	}
 }

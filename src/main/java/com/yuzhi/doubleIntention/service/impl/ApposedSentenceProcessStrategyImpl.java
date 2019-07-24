@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 
+import com.yuzhi.doubleIntention.dto.ResponseJsonDto;
 import com.yuzhi.doubleIntention.dto.constantdto.SentenceStrategyConstant;
 import com.yuzhi.doubleIntention.dto.parser.KeenageDataDTO;
 import com.yuzhi.doubleIntention.service.ApposedSentenceProcessStrategy;
@@ -52,23 +53,20 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 	 * 处理策略分发总控
 	 */
 	@Override
-	public List<String> processStartegySwitch(String sentenceStrategy,String frstSentenceType, String scndSentenceType,
+	public ResponseJsonDto processStartegySwitch(String sentenceStrategy,String frstSentenceType, String scndSentenceType,
 			List<List<KeenageDataDTO>> splitSentencePreprocess){
 		//第一句的标签词位置
 		List<Integer> frstSentenceLabelLocation = this.getSentenceLabelLocation(false,frstSentenceType,splitSentencePreprocess.get(0));
 		//第二句标签词位置
 		List<Integer> scndSentenceLabelLocation = this.getSentenceLabelLocation(true,scndSentenceType,splitSentencePreprocess.get(1));
 		if(frstSentenceLabelLocation.isEmpty()||scndSentenceLabelLocation.isEmpty()) {
-			System.out.println("没有找到标签词位置");
-			return null;
+			return new ResponseJsonDto(505,null,"并列句：没有找到标签词位置！");
 		}
 		if(frstSentenceLabelLocation.size()>2||scndSentenceLabelLocation.size()>2) {
-			System.out.println("单句中标签词超过两个,暂无法处理");
-			return null;
+			return new ResponseJsonDto(505,null,"并列句：单句中标签词超过两个,暂无法处理！");
 		}
 		if((frstSentenceLabelLocation.size()==1&&!frstSentenceType.equals("疑问_单要素+呢"))||(scndSentenceLabelLocation.size()==1&&!scndSentenceType.equals("疑问_单要素+呢"))) {
-			System.out.println("单句中只有一个标签，并且不是单要素标签，暂无法处理");
-			return null;
+			return new ResponseJsonDto(505,null,"并列句：单句中只有一个标签，并且不是单要素标签，暂无法处理！");
 		}
 		
 		//根据策略执行对应函数
@@ -88,8 +86,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 			case SentenceStrategyConstant.REPLACE_SPAREMARKER:
 				return this.replaceSpareMarker(frstSentenceLabelLocation,scndSentenceLabelLocation,splitSentencePreprocess);
 			default:
-				System.out.println("当前系统版本不支持该策略");
-				return null;
+				return new ResponseJsonDto(505,null,"并列句：当前系统版本不支持该策略！");
 		}
 	}
 	/**  
@@ -100,7 +97,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 	 * @param splitSentencePreprocess
 	 * @return  
 	 */
-	private List<String> replaceSpareMarker(List<Integer> frstSentenceLabelLocation,
+	private ResponseJsonDto replaceSpareMarker(List<Integer> frstSentenceLabelLocation,
 			List<Integer> scndSentenceLabelLocation, List<List<KeenageDataDTO>> splitSentencePreprocess) {
 		//结果句子返回列表
 				List<String> resultSentenceList=new ArrayList<String>();
@@ -140,7 +137,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 				//存入返回结果列表并返回
 				resultSentenceList.add(resultSentenceOneString);
 				resultSentenceList.add(resultSentenceTwoString);
-				return resultSentenceList;
+				return new ResponseJsonDto(200,resultSentenceList,"success:replace_spareMarker");
 	}
 	/**  
 	 * <p>Title: appendNormalization</p>  
@@ -151,7 +148,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 	 * @param splitSentencePreprocess
 	 * @return  
 	 */
-	private List<String> appendNormalization(String frstSentenceType, List<Integer> frstSentenceLabelLocation,
+	private ResponseJsonDto appendNormalization(String frstSentenceType, List<Integer> frstSentenceLabelLocation,
 			List<Integer> scndSentenceLabelLocation, List<List<KeenageDataDTO>> splitSentencePreprocess) {
 		//结果句子返回列表
 		List<String> resultSentenceList=new ArrayList<String>();
@@ -178,8 +175,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 					//去标准化对照表中超找标准化映射
 					String normalizedString = normalizationMap.get(frstSentenceType);
 					if(normalizedString==null||"".endsWith(normalizedString)) {
-						System.out.println("没有在标准化对照表中找到当前标签");
-						return null;
+						return new ResponseJsonDto(505,resultSentenceList,"append_normalization:没有在标准化对照表中找到当前标签");
 					}
 					//先把标准化词（组）追加到句子后
 					resultSentenceTwo.append(normalizedString);
@@ -198,7 +194,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 		//存入返回结果列表并返回
 		resultSentenceList.add(resultSentenceOneString);
 		resultSentenceList.add(resultSentenceTwoString);
-		return resultSentenceList;
+		return new ResponseJsonDto(200,resultSentenceList,"success:append_normalization");
 	}
 	/**
 	 * 
@@ -244,7 +240,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 	 * @return  
 	 * @see com.yuzhi.doubleIntention.service.ApposedSentenceProcessStrategy#replaceWholeSentence(java.lang.String, java.lang.String, java.util.List)  
 	 */
-	public List<String> replaceWhole(List<Integer> frstSentenceLabelLocation, List<Integer> scndSentenceLabelLocation,
+	private ResponseJsonDto replaceWhole(List<Integer> frstSentenceLabelLocation, List<Integer> scndSentenceLabelLocation,
 			List<List<KeenageDataDTO>> splitSentencePreprocess) {
 		//结果句子返回列表
 		List<String> resultSentenceList=new ArrayList<String>();
@@ -283,7 +279,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 		//存入返回结果列表并返回
 		resultSentenceList.add(resultSentenceOneString);
 		resultSentenceList.add(resultSentenceTwoString);
-		return resultSentenceList;
+		return new ResponseJsonDto(200,resultSentenceList,"success:replace_whole");
 	}
 
 	/**  
@@ -294,7 +290,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 	 * @param splitSentencePreprocess  
 	 * @return 
 	 */
-	private List<String> replaceElement(List<Integer> scndSentenceLabelLocation,
+	private ResponseJsonDto replaceElement(List<Integer> scndSentenceLabelLocation,
 			List<List<KeenageDataDTO>> splitSentencePreprocess) {
 		//结果句子返回列表
 		List<String> resultSentenceList=new ArrayList<String>();
@@ -312,20 +308,17 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 			scndSentenceMainPartList.add(scndSentenceList.get(i).getExpression());
 			//并获取其位置上的key列的值
 			if(scndSentenceList.get(i).getKey()==null||"".equals(scndSentenceList.get(i).getKey())) {
-				System.out.println("key_1列标签对应的key列标签为空，无法处理");
-				return null;
+				return new ResponseJsonDto(505,null,"replace_element:key_1列标签对应的key列标签为空，无法处理！");
 			}
 			keyStringList.add(scndSentenceList.get(i).getKey());
 		}
 		//第一句话插入的位置集合
 		if (keyStringList.size()>2) {
-			System.out.println("在第二句中，单要素分词节点超过两个的暂无法处理");
-			return null;
+			return new ResponseJsonDto(505,null,"replace_element:在第二句中，单要素分词节点超过两个的暂无法处理！");
 		}
 		for (String string : keyStringList) {
 			if(string.contains(",")) {
-				System.out.println("在第二句中，单要素分词节点的key_1列有多个标签，暂无法处理");
-				return null;
+				return new ResponseJsonDto(505,null,"replace_element:在第二句中，单要素分词节点的key列有多个标签，暂无法处理！");
 			}
 		}
 		List<Integer> frstSentenceDelPartList=null;//要删除的节点位置
@@ -335,7 +328,11 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 			String key = frstSentenceList.get(j).getKey();
 			//如果key列等于null或为空串,那就不参与匹配，直接将该分词作为句子一部分，并跳过当前循环
 			if(key==null||"".equals(key)) {
-				continue;
+				if(j==frstSentenceList.size()-1) {
+					return new ResponseJsonDto(505,null,"replace_element:第一句中没有匹配到第二句中单要素相对应的key列值！");
+				}else {
+					continue;
+				}
 			}
 			//如果key中包含第二句单要素对应的key的值
 			if(key.contains(keyStringList.get(0))) {
@@ -356,15 +353,13 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 							continue;
 						}
 					}else {//如果是倒数第一个节点
-						System.out.println("第一句即将遍历完，而第二句中还有未匹配到的节点");
-						return null;
+						return new ResponseJsonDto(505,null,"replace_element:第一句即将遍历完，而第二句中还有未匹配到的节点！");
 					}
 				}
 			}else if(j<frstSentenceList.size()-keyStringList.size()) {//如果不包含，但没遍历完，那就继续遍历
 				continue;
 			}else {//遍历完了,没找到，直接return
-				System.out.println("没有匹配到第二句中单要素相对应的key列值");
-				return null;
+				return new ResponseJsonDto(505,null,"replace_element:第一句中没有匹配到第二句中单要素相对应的key列值！");
 			}
 		}
 		
@@ -374,7 +369,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 			//第一句正常拼接就ok
 			resultSentenceOne.append(frstSentenceList.get(i).getExpression());
 			//第二句拼接
-			if (frstSentenceDelPartList.size()==2) {//两个要素标签
+			if (scndSentenceMainPartList.size()==2) {//两个要素标签
 				for (; j < frstSentenceDelPartList.size(); ) {
 					//如果遍历到了上边记录的位置
 					if(j<2&&i==frstSentenceDelPartList.get(j)) {
@@ -402,7 +397,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 		//存入返回结果列表并返回
 		resultSentenceList.add(resultSentenceOneString);
 		resultSentenceList.add(resultSentenceTwoString);
-		return resultSentenceList;
+		return new ResponseJsonDto(200,resultSentenceList,"success:replace_element");
 	}
 	
 	/**  
@@ -413,7 +408,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 	 * @param splitSentencePreprocess
 	 * @return  
 	 */
-	private List<String> appendAddcomma(List<Integer> frstSentenceLabelLocation, List<Integer> scndSentenceLabelLocation,
+	private ResponseJsonDto appendAddcomma(List<Integer> frstSentenceLabelLocation, List<Integer> scndSentenceLabelLocation,
 			List<List<KeenageDataDTO>> splitSentencePreprocess) {
 		//结果句子返回列表
 		List<String> resultSentenceList=new ArrayList<String>();
@@ -446,7 +441,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 		//存入返回结果列表并返回
 		resultSentenceList.add(resultSentenceOneString);
 		resultSentenceList.add(resultSentenceTwoString);
-		return resultSentenceList;
+		return new ResponseJsonDto(200,resultSentenceList,"success:append_addComma");
 	}
 
 	/**  
@@ -458,7 +453,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 	 * @param splitSentencePreprocess
 	 * @return  
 	 */
-	private List<String> appendNormDM(String scndSentenceType, List<Integer> frstSentenceLabelLocation, List<Integer> scndSentenceLabelLocation,
+	private ResponseJsonDto appendNormDM(String scndSentenceType, List<Integer> frstSentenceLabelLocation, List<Integer> scndSentenceLabelLocation,
 			List<List<KeenageDataDTO>> splitSentencePreprocess) {
 		//结果句子返回列表
 		List<String> resultSentenceList=new ArrayList<String>();
@@ -490,7 +485,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 		//存入返回结果列表并返回
 		resultSentenceList.add(resultSentenceOneString);
 		resultSentenceList.add(resultSentenceTwoString);
-		return resultSentenceList;
+		return new ResponseJsonDto(200,resultSentenceList,"success:append_norm_dM");
 	}
 
 
@@ -502,7 +497,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 	 * @param splitSentencePreprocess
 	 * @return  
 	 */
-	private List<String> appendDeleteMarker(List<Integer> frstSentenceLabelLocation, List<Integer> scndSentenceLabelLocation,
+	private ResponseJsonDto appendDeleteMarker(List<Integer> frstSentenceLabelLocation, List<Integer> scndSentenceLabelLocation,
 			List<List<KeenageDataDTO>> splitSentencePreprocess) {
 		//结果句子返回列表
 		List<String> resultSentenceList=new ArrayList<String>();
@@ -537,7 +532,7 @@ public class ApposedSentenceProcessStrategyImpl implements ApposedSentenceProces
 		//存入返回结果列表并返回
 		resultSentenceList.add(resultSentenceOneString);
 		resultSentenceList.add(resultSentenceTwoString);
-		return resultSentenceList;
+		return new ResponseJsonDto(200,resultSentenceList,"success:append_deleteMarker");
 	}
 	/* (non-Javadoc)  
 	 * <p>Title: run</p>  

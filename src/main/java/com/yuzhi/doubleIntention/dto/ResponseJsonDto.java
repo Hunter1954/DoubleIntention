@@ -9,6 +9,8 @@
 */
 package com.yuzhi.doubleIntention.dto;
 
+import java.util.List;
+
 /**
  * <p>
  * Title: ResponseJsonDto
@@ -21,9 +23,38 @@ package com.yuzhi.doubleIntention.dto;
  * @date 2019年4月23日
  */
 public class ResponseJsonDto {
+	private String questionID;
+	private String orignalQuestion;
 	private int status;
-	private Object data;
+	private List<String> data;
 	private String msg;
+	
+	
+
+	/**
+	 * @return the questionID
+	 */
+	public String getQuestionID() {
+		return questionID;
+	}
+	/**
+	 * @param questionID the questionID to set
+	 */
+	public void setQuestionID(String questionID) {
+		this.questionID = questionID;
+	}
+	/**
+	 * @return the orignalQuestion
+	 */
+	public String getOrignalQuestion() {
+		return orignalQuestion;
+	}
+	/**
+	 * @param orignalQuestion the orignalQuestion to set
+	 */
+	public void setOrignalQuestion(String orignalQuestion) {
+		this.orignalQuestion = orignalQuestion;
+	}
 	/**
 	 * @return the status
 	 */
@@ -39,13 +70,13 @@ public class ResponseJsonDto {
 	/**
 	 * @return the data
 	 */
-	public Object getData() {
+	public List<String> getData() {
 		return data;
 	}
 	/**
 	 * @param data the data to set
 	 */
-	public void setData(Object data) {
+	public void setData(List<String> data) {
 		this.data = data;
 	}
 	/**
@@ -67,7 +98,22 @@ public class ResponseJsonDto {
 	* @param data
 	* @param msg  
 	*/ 
-	public ResponseJsonDto(int status, Object data, String msg) {
+	public ResponseJsonDto(String questionID,String orignalQuestion,int status, List<String> data, String msg) {
+		super();
+		this.questionID = questionID;
+		this.orignalQuestion = orignalQuestion;
+		this.status = status;
+		this.data = data;
+		this.msg = msg;
+	}
+	public ResponseJsonDto(String orignalSentence,int status, List<String> data, String msg) {
+		super();
+		this.orignalQuestion = orignalSentence;
+		this.status = status;
+		this.data = data;
+		this.msg = msg;
+	}
+	public ResponseJsonDto(int status, List<String> data, String msg) {
 		super();
 		this.status = status;
 		this.data = data;
