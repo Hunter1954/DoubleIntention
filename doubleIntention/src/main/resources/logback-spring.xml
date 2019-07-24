@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+	<!-- 文件输出格式 -->
+	<property name="PATTERN"
+		value="%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n" />
+
+	<!-- You can override this to have a custom pattern -->
+	<property name="CONSOLE_LOG_PATTERN"
+		value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}" />
+
+	<!-- 日志文件路径 -->
+	<springProperty scope="context" name="springAppName"
+		source="spring.application.name" />
+
+	<property name="DEV_LOG_PATH" value="../log" />
+	<property name="DEV_ERROR_LOG" value="${DEV_LOG_PATH}/${springAppName}/error.log" />
+	<property name="DEV_INFO_LOG" value="${DEV_LOG_PATH}/${springAppName}/info.log" />
+	<property name="DEV_SYSTEM_LOG"
+		value="${DEV_LOG_PATH}/${springAppName}/systemout.log" />
+
+	<property name="PROD_LOG_PATH" value="../log" />
+	<property name="PROD_ERROR_LOG" value="${PROD_LOG_PATH}/${springAppName}/error.log" />
+	<property name="PROD_INFO_LOG" value="${PROD_LOG_PATH}/${springAppName}/info.log" />
+
+	<!-- 开发环境 -->
+	<springProfile name="test,dev">
+		<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+			<!-- 过滤掉 TRACE级别的日志 -->
+			<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+				<level>INFO</level>
+			</filter>
+			<encoder>
+				<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+				<charset>utf8</charset>
+			</encoder>
+		</appender>
+
+		<!-- Appender to log to file -->
+		<appender name="infoFile"
+			class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<file>${DEV_INFO_LOG}</file>
+			<append>true</append>
+			<!--&lt;!&ndash; 过滤掉 TRACE、DEBUG 级别的日志 &ndash;&gt; -->
+			<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+				<level>INFO</level>
+			</filter>
+
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>${DEV_INFO_LOG}.%d{yyyy-MM-dd}.gz</fileNamePattern>
+				<maxHistory>1</maxHistory>
+			</rollingPolicy>
+			<encoder>
+				<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+				<charset>utf8</charset>
+			</encoder>
+		</appender>
+		<!--&lt;!&ndash; Appender to log to file &ndash;&gt; -->
+		<appender name="errorFile"
+			class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<file>${DEV_ERROR_LOG}</file>
+			<append>true</append>
+			<!--&lt;!&ndash; 过滤掉 TRACE、DEBUG、INFO 级别的日志 &ndash;&gt; -->
+			<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+				<level>ERROR</level>
+			</filter>
+
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>${DEV_ERROR_LOG}.%d{yyyy-MM-dd}.gz
+				</fileNamePattern>
+				<maxHistory>1</maxHistory>
+			</rollingPolicy>
+			<encoder>
+				<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+				<charset>utf8</charset>
+			</encoder>
+		</appender>			
+		<!-- root将级别为“INFO”及大于“INFO”的日志信息交给已经配置好的名为“Console”的appender处理 -->
+		<root level="DEBUG">
+			<appender-ref ref="console" />
+			<appender-ref ref="infoFile" />
+			<appender-ref ref="errorFile" />
+		</root>
+	</springProfile>
+
+	<!-- 生产环境 -->
+	<springProfile name="prod">
+
+		<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+			<!-- 过滤掉 TRACE、DEBUG 级别的日志 -->
+			<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+				<level>INFO</level>
+			</filter>
+			<encoder>
+				<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+				<charset>utf8</charset>
+			</encoder>
+		</appender>
+
+		<!-- Appender to log to file -->
+		<appender name="infoFile"
+			class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<file>${PROD_INFO_LOG}</file>
+			<append>true</append>
+			<!-- 过滤掉 TRACE、DEBUG、INFO 级别的日志 -->
+			<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+				<level>INFO</level>
+			</filter>
+
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>${PROD_INFO_LOG}.%d{yyyy-MM-dd}.gz
+				</fileNamePattern>
+				<maxHistory>1</maxHistory>
+			</rollingPolicy>
+			<encoder>
+				<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+				<charset>utf8</charset>
+			</encoder>
+		</appender>
+
+		<!-- Appender to log to file -->
+		<appender name="errorFile"
+			class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<file>${PROD_ERROR_LOG}</file>
+			<append>true</append>
+			<!-- 过滤掉 TRACE、DEBUG、INFO 级别的日志 -->
+			<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+				<level>ERROR</level>
+			</filter>
+
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>${PROD_ERROR_LOG}.%d{yyyy-MM-dd}.gz
+				</fileNamePattern>
+				<maxHistory>1</maxHistory>
+			</rollingPolicy>
+			<encoder>
+				<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+				<charset>utf8</charset>
+			</encoder>
+		</appender>
+		<!-- root将级别为“INFO”及大于“INFO”的日志信息交给已经配置好的名为“Console”的appender处理 -->
+		<root level="info">
+			<appender-ref ref="console" />
+			<appender-ref ref="infoFile" />
+			<appender-ref ref="errorFile" />
+		</root>
+	</springProfile>
+</configuration>
